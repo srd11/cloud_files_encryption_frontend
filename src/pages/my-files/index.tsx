@@ -1,7 +1,7 @@
 import { create_folder } from "@/api/create-folder";
 import { FileRes, GetFilesRes, get_folders } from "@/api/get-folders";
 import { upload_txt_file } from "@/api/upload-file";
-import { decrypt, LOCAL_KEY } from "@/encryption/tools";
+import { decrypt, encrypt, LOCAL_KEY } from "@/encryption/tools";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Model from "./components/Model";
@@ -21,8 +21,7 @@ const MyFiles = () => {
   }, []);
 
   const create_dir = () => {
-    upload_txt_file("/max", "kekekeke", "hmm.txt");
-    create_folder(name_input);
+    create_folder(encrypt(name_input));
   };
   return (
     <div className="pt-32">

@@ -1,19 +1,21 @@
 import { create_folder } from "@/api/create-folder";
 import { FileRes, GetFilesRes, get_folders } from "@/api/get-folders";
+import { decrypt, encrypt } from "@/encryption/tools";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import Model from "./components/Model";
 
 const Showcase = () => {
   const [files, setFiles] = useState<FileRes[]>([]);
-  const [current_company_index, setccI] = useState(0);
-  const [c, setc] = useState(false);
   const router = useRouter();
   let { path } = router.query;
 
   const [name_input, set_name_input] = useState("");
+  const [model_active, set_modal_active] = useState(false);
 
   const create_dir = () => {
-    create_folder(path + "/" + name_input);
+    const new_path = path as string[];
+    create_folder(new_path.join("/") + "/" + encrypt(name_input));
   };
   useEffect(() => {
     let constructed_path: string = "/";
@@ -25,6 +27,13 @@ const Showcase = () => {
   }, [path]);
   return (
     <div className="pt-32">
+      {model_active && (
+        <Model
+          fileName={name_input}
+          path={(path as string[]).join("/")}
+          onClose={() => set_modal_active(false)}
+        ></Model>
+      )}
       <div>
         <input
           type="text"
@@ -32,7 +41,9 @@ const Showcase = () => {
           value={name_input}
           onChange={(e) => set_name_input(e.target.value)}
         />
-        <button className="bg-green-700">Create file</button>
+        <button className="bg-green-700" onClick={() => set_modal_active(true)}>
+          Create file
+        </button>
         <button onClick={create_dir}>Create folder</button>
       </div>
       <div>
@@ -49,9 +60,8 @@ const Showcase = () => {
                 router.push(o_path + "/" + e.name);
               }}
             >
-              <img src="" alt="here is img"></img>
-              <p className="cursor-pointer">NAME: {e.name}</p>
-              <p>Domain: {e.isDir}</p>
+              <p className="cursor-pointer">{decrypt(e.name)}</p>
+              <p>Dir: {e.isDir}</p>
               <button></button>
             </div>
           );

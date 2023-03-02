@@ -1,18 +1,22 @@
-import { AES, enc } from "crypto-js"
+import { AES, enc, format } from "crypto-js"
+import { env } from "process";
 
 export const LOCAL_KEY = "ENCRYTION_KEY"
 
 export const encrypt = (a: string) => {
     const key = localStorage.getItem(LOCAL_KEY) as string
-    const encrypted_text = AES.encrypt(a, 'secret key 123').toString();
-    console.log(encrypted_text);
+    let encrypted_text = AES.encrypt(JSON.stringify({ a }), key).toString();
+    encrypted_text = Buffer.from(encrypted_text).toString("hex")
 
     return encrypted_text
+
 }
 
 export const decrypt = (a: string) => {
-    const key = localStorage.getItem(LOCAL_KEY) as string
-    const decrpyted = AES.decrypt(a, 'secret key 123').toString(enc.Utf8)
 
-    return decrpyted
+    const key = localStorage.getItem(LOCAL_KEY) as string
+    a = Buffer.from(a, "hex").toString("utf8")
+    const decrpyted = AES.decrypt(a, key).toString(enc.Utf8)
+
+    return JSON.parse(decrpyted).a
 } 
